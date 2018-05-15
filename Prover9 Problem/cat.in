@@ -1,3 +1,6 @@
+% Harri Bell-Thomas, ahb36
+% Result: # answer([V302,travel(food_bowl),meow,travel(tv),scratch(tv)])
+
 set(prolog_style_variables).
 formulas(assumptions).
 
