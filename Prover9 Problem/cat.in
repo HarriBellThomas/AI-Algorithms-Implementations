@@ -1,0 +1,63 @@
+set(prolog_style_variables).
+formulas(assumptions).
+
+	% s_0 initialisation
+	s_0 != result(A,S).
+	at(cat, couch, s_0).
+	at(man, couch, s_0).
+	valuable(tv, s_0).
+	-valuable(couch, s_0).
+	-valuable(food_bowl, s_0).
+
+	sequence([],S) = S.
+	sequence([X:Xs],S) = sequence(Xs, result(X,S)).
+
+	possible(travel(X),S).
+	possible(meow,S).
+
+	% Can scratch valuable things when owner not there
+	(at(cat,O,S) & at(man,food_bowl,S) & valuable(O,S)) -> possible(scratch(O),S).
+
+	% Build successor states
+	% Actions are; travel, meow, and scratch.
+	% Fluents are; valuable and at.
+	possible(A,S) ->
+		(at(Subject,Location,result(A,S)) <->
+			(Subject=cat & A=travel(Location)) |
+			(Subject=cat & (-(exists C (A=travel(C) & C!=Location))) & at(Subject,Location,S)) |
+			(Subject=man & at(man,Location,S)) |
+			(Subject=man & A=meow & Location=food_bowl & at(cat,food_bowl,S))
+		).
+
+	possible(A,S) ->
+		(valuable(O,result(A,S)) <-> (valuable(O,S) & A!=scratch(O))).
+
+
+	% Uniqueness
+	cat != man.
+	cat != couch.
+	cat != food_bowl.
+	cat != tv.
+	man != couch.
+	man != food_bowl.
+	man != tv.
+	couch != food_bowl.
+	couch != tv.
+	food_bowl != tv.
+
+	travel(X) != scratch(O).
+	travel(X) != meow.
+	scratch(O) != meow.
+	travel(X) = travel(Y) -> X=Y.
+	scratch(X) = scratch(Y) -> X=Y.
+	result(X,S1) = result(Y,S2) -> X=Y & S1=S2.
+
+
+	% Goal
+	(S1 != sequence(Actions,s_0)) |
+	(valuable(tv,S1)) # answer(Actions).
+
+end_of_list.
+
+formulas(goals).
+end_of_list.
